@@ -13,19 +13,6 @@ ASSETS = {
 }
 webhook_url = "https://discord.com/api/webhooks/1480278522642829332/M57sg5qeWiRwjXFFCdb65bvtFGGrDvJlIJL7iEp5413Hy2CaROOHa-lvG4CGoQksyf9H"
 DIRECTORY = os.path.dirname(__file__)
-cam = cv2.VideoCapture(0) 
-if not cam.isOpened():
-    print("Error: Could not open camera.")
-
-success, frame = cam.read()
-cam.release()
-if(success):
-    cv2.imshow("Camera Feed", frame)
-    cv2.imwrite("detected.jpg", frame)
-    with open("detected.jpg", "rb") as f:
-        files = {"file": ("detected.jpg", f.read())} 
-        data = {"content": "TRIGGER DETECTED"} 
-        response = requests.post(webhook_url, data=data, files=files)
 
 bgimage = requests.get(ASSETS.get("folder"))
 
@@ -120,7 +107,23 @@ app.setStyleSheet("""
         }
 """)
 
+def onTrigger():
+    cam = cv2.VideoCapture(0) 
+    if not cam.isOpened():
+        print("Error: Could not open camera.")
 
+    success, frame = cam.read()
+    cam.release()
+    if(success):
+        cv2.imshow("Camera Feed", frame)
+        cv2.imwrite("detected.jpg", frame)
+        with open("detected.jpg", "rb") as f:
+            files = {"file": ("detected.jpg", f.read())} 
+            data = {"content": "TRIGGER DETECTED"} 
+            response = requests.post(webhook_url, data=data, files=files)
+    else:
+        data = {"content": "TRIGGER DETECTED, IMAGE UNAVAILABLE"} 
+        response = requests.post(webhook_url, data=data)
 
 window = MainWindow()
 window.show()  # IMPORTANT!!!!! Windows are hidden by default.
