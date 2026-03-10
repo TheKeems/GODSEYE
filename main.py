@@ -9,12 +9,16 @@ from PyQt6.QtGui import QFontDatabase, QFont, QPainter, QPen, QBrush, QColor, QP
 from PyQt6.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QLabel, QGridLayout, QStackedLayout
 ASSETS = {
     "font": "https://raw.githubusercontent.com/TheKeems/GODSEYE/main/assets/RMFont.ttf",
-    "folder": "https://raw.githubusercontent.com/TheKeems/GODSEYE/main/ILLUSIONARY.png"
+    "eyeoutline": "https://raw.githubusercontent.com/TheKeems/GODSEYE/main/assets/eyeoutline.png",
+    "eyeball": "https://raw.githubusercontent.com/TheKeems/GODSEYE/main/assets/eyeball.png",
+    "folder": "https://raw.githubusercontent.com/TheKeems/GODSEYE/main/assets/ILLUSIONARY.png"
 }
 webhook_url = "https://discord.com/api/webhooks/1480278522642829332/M57sg5qeWiRwjXFFCdb65bvtFGGrDvJlIJL7iEp5413Hy2CaROOHa-lvG4CGoQksyf9H"
 DIRECTORY = os.path.dirname(__file__)
 
 bgimage = requests.get(ASSETS.get("folder"))
+eyeimg = requests.get(ASSETS.get("eyeball"))
+eyeoutlineimg = requests.get(ASSETS.get("eyeoutline"))
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -65,6 +69,26 @@ class MainWindow(QMainWindow):
         #self.setCentralWidget(mainBg)
         mainlayout.addWidget(bg)
         
+        eyew = QWidget()
+        eye = QLabel(eyew)
+        eyemap = QPixmap()
+        eyemap.loadFromData(eyeimg.content)
+        eye.setPixmap(eyemap)
+        eye.setScaledContents(True)
+        eye.setFixedSize(150, 75)
+        eye.move(250, 200)
+        mainlayout.addWidget(eyew)
+        
+        eyeow = QWidget()
+        eyeoutline = QLabel(eyeow)
+        eyeomap = QPixmap()
+        eyeomap.loadFromData(eyeoutlineimg.content)
+        eyeoutline.setPixmap(eyeomap)
+        eyeoutline.setScaledContents(True)
+        eyeoutline.setFixedSize(150, 75)
+        eyeoutline.move(250, 200)
+        mainlayout.addWidget(eyeow)
+
         btn = QWidget()
         button = QPushButton("BEGIN SEEKING", btn)
         button.setFixedSize(160, 60)
