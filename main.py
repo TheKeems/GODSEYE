@@ -3,8 +3,10 @@ import cv2
 import os
 import requests
 import json
+import random
+import time
 from pynput import mouse, keyboard
-from PyQt6.QtCore import QSize, Qt, QRect
+from PyQt6.QtCore import QSize, Qt, QRect, QPropertyAnimation, QEasingCurve, QPoint
 from PyQt6.QtGui import QFontDatabase, QFont, QPainter, QPen, QBrush, QColor, QPixmap
 from PyQt6.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QLabel, QGridLayout, QStackedLayout
 ASSETS = {
@@ -20,7 +22,13 @@ bgimage = requests.get(ASSETS.get("folder"))
 eyeimg = requests.get(ASSETS.get("eyeball"))
 eyeoutlineimg = requests.get(ASSETS.get("eyeoutline"))
 
+app = QApplication(sys.argv)
+
 class MainWindow(QMainWindow):
+    global eye
+    global eyew
+    eyew = QWidget()
+    eye = QLabel(eyew)
     def __init__(self):
         super().__init__()
 
@@ -69,8 +77,6 @@ class MainWindow(QMainWindow):
         #self.setCentralWidget(mainBg)
         mainlayout.addWidget(bg)
         
-        eyew = QWidget()
-        eye = QLabel(eyew)
         eyemap = QPixmap()
         eyemap.loadFromData(eyeimg.content)
         eye.setPixmap(eyemap)
@@ -105,11 +111,26 @@ class MainWindow(QMainWindow):
         central.setLayout(bglayout)
         self.setCentralWidget(central)
 
+
     def onClick(self):
         #self.button.setEnabled(False)
-        print("Clicked!")        
-
-app = QApplication(sys.argv)
+        print("Clicked!")   
+        self.anim = QPropertyAnimation(eye, b"pos")
+        self.anim.setDuration(3000)
+        self.anim.setLoopCount(-1)
+        #self.anim.setEasingCurve(QEasingCurve.Type.InOutCubic)
+        
+        #top ten hardcode moments dont do this kids
+        start_pos = eye.pos()
+        self.anim.setStartValue(start_pos)
+        for i in range(16):
+            self.anim.setKeyValueAt((i + 1)/48, start_pos + QPoint(random.randint(-1, 1), random.randint(-1, 1)))
+        for i in range(16):
+            self.anim.setKeyValueAt(1/3 + (i + 1)/48, start_pos + QPoint(-30, 0) + QPoint(random.randint(-1, 1), random.randint(-1, 1)))    
+        for i in range(16):
+            self.anim.setKeyValueAt(2/3 + (i + 1)/48, start_pos + QPoint(30, 0) + QPoint(random.randint(-1, 1), random.randint(-1, 1)))    
+        self.anim.setEndValue(start_pos)
+        self.anim.start()
 
 font_id = QFontDatabase.addApplicationFont(DIRECTORY + "/assets/RMFontI.ttf")
 if font_id == -1:
